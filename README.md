@@ -44,6 +44,5 @@ Assumptions:
 From your command line navigate to the root folder of the application and:
 ```
 > cd MostActiveCookie
-> dotnet restore
 > dotnet run --f SampleData.csv --d 2018-12-09
 ```
