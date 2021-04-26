@@ -26,7 +26,7 @@ namespace Tests
         {
             var cookieValue = "123";
             var cookieDate = DateTimeOffset.Now;
-            _cookieJar.AddCookie(cookieValue, cookieDate);
+            _cookieJar.AddCookie(cookieDate, cookieValue);
             
             var mostActiveCookies = _cookieJar.FindMostActiveFor(cookieDate);
 
@@ -40,16 +40,16 @@ namespace Tests
             var cookieValue1 = "123";
             var cookieDate = DateTimeOffset.Now;
             
-            _cookieJar.AddCookie(cookieValue1, cookieDate);
-            _cookieJar.AddCookie(cookieValue1, cookieDate.AddMinutes(3));
-            _cookieJar.AddCookie(cookieValue1, cookieDate.AddMinutes(6));
+            _cookieJar.AddCookie(cookieDate, cookieValue1);
+            _cookieJar.AddCookie(cookieDate.AddMinutes(3), cookieValue1);
+            _cookieJar.AddCookie(cookieDate.AddMinutes(6), cookieValue1);
 
             var cookieValue2 = "456";
-            _cookieJar.AddCookie(cookieValue2, cookieDate.AddMinutes(1));
-            _cookieJar.AddCookie(cookieValue2, cookieDate.AddMinutes(2));
+            _cookieJar.AddCookie(cookieDate.AddMinutes(1), cookieValue2);
+            _cookieJar.AddCookie(cookieDate.AddMinutes(2), cookieValue2);
             
             var cookieValue3 = "789";
-            _cookieJar.AddCookie(cookieValue3, cookieDate.AddDays(1));
+            _cookieJar.AddCookie(cookieDate.AddDays(1), cookieValue3);
 
             var mostActiveCookies = _cookieJar.FindMostActiveFor(cookieDate);
 
@@ -57,20 +57,19 @@ namespace Tests
             Assert.Equal(cookieValue1, mostActiveCookies[0]);
         }
 
-        //todo: do I need to complicate this test to have two or more cookies with 3 or 5 hits in a day?
         [Fact]
         public void Return_more_than_one_cookie_When_all_cookies_of_the_date_had_same_activity()
         {
             var cookieDate = DateTimeOffset.Now;
             
             var cookieValue1 = "123";
-            _cookieJar.AddCookie(cookieValue1, cookieDate);
+            _cookieJar.AddCookie(cookieDate, cookieValue1);
             
             var cookieValue2 = "456";
-            _cookieJar.AddCookie(cookieValue2, cookieDate);
+            _cookieJar.AddCookie(cookieDate, cookieValue2);
             
             var cookieValue3 = "789";
-            _cookieJar.AddCookie(cookieValue3, cookieDate);
+            _cookieJar.AddCookie(cookieDate, cookieValue3);
             
             var mostActiveCookies = _cookieJar.FindMostActiveFor(cookieDate);
             

@@ -6,58 +6,71 @@ namespace MostActiveCookie
 {
     public class CookieJar
     {
-        private readonly Dictionary<long, Dictionary<string, int>> _cookies;
+        //group cookies by date as well as track how many times they appeared on that date (aka their activity)
+        private readonly IDictionary<long, IDictionary<string, int>> _cookiesByDate;
 
         public CookieJar()
         {
-            _cookies = new Dictionary<long, Dictionary<string, int>>();
+            _cookiesByDate = new Dictionary<long, IDictionary<string, int>>();
         }
 
-        public List<string> FindMostActiveFor(DateTimeOffset dateToFind)
+        public void AddCookie(DateTimeOffset cookieDate, string cookie)
         {
-            if (!_cookies.ContainsKey(dateToFind.Date.Ticks))
+            var newDate = cookieDate.Date.Ticks;
+            
+            if (!_cookiesByDate.ContainsKey(newDate))
+            {
+                _cookiesByDate.Add(
+                    newDate,
+                    new Dictionary<string, int>
+                    {
+                        {cookie, 1}
+                    });
+                return;
+            }
+            
+            var cookies = _cookiesByDate[newDate];
+            if (cookies.ContainsKey(cookie))
+            {
+                cookies[cookie]++;
+            }
+            else
+            {
+                cookies.Add(cookie,1);
+            }
+        }
+
+        public IList<string> FindMostActiveFor(DateTimeOffset dateToFindBy)
+        {
+            var dateKey = dateToFindBy.Date.Ticks;
+            
+            if (!_cookiesByDate.ContainsKey(dateKey))
             {
                 return new List<string>();
             }
 
-            var cookiesOfTheDay = _cookies[dateToFind.Date.Ticks];
-            var cookiesGroupedByActivity = new Dictionary<int, List<string>>();
+            // group cookies by the amount of times they appeared (aka their activity)
+            var cookiesByActivity = new Dictionary<int, IList<string>>();
             
-            foreach (var cookie in cookiesOfTheDay)
+            var cookies = _cookiesByDate[dateKey];
+            foreach (var (cookie, cookieActivity) in cookies)
             {
-                if (cookiesGroupedByActivity.ContainsKey(cookie.Value))
+                if (cookiesByActivity.ContainsKey(cookieActivity))
                 {
-                    cookiesGroupedByActivity[cookie.Value].Add(cookie.Key);
+                    cookiesByActivity[cookieActivity].Add(cookie);
                 }
                 else
                 {
-                    cookiesGroupedByActivity.Add(cookie.Value, new List<string>{cookie.Key});
+                    cookiesByActivity.Add(
+                        cookieActivity,
+                        new List<string> {cookie});
                 }
             }
 
-            return cookiesGroupedByActivity
-                .OrderByDescending(cookie => cookie.Key)
+            return cookiesByActivity
+                .OrderByDescending(activity => activity.Key)
                 .First()
                 .Value;
-        }
-
-        public void AddCookie(string cookieValue, DateTimeOffset cookieKey)
-        {
-            if (!_cookies.ContainsKey(cookieKey.Date.Ticks))
-            {
-                _cookies.Add(cookieKey.Date.Ticks,new Dictionary<string, int> {{cookieValue, 1}});
-                return;
-            }
-            
-            var cookiesOfTheDay = _cookies[cookieKey.Date.Ticks];
-            if (cookiesOfTheDay.ContainsKey(cookieValue))
-            {
-                cookiesOfTheDay[cookieValue]++;
-            }
-            else
-            {
-                cookiesOfTheDay.Add(cookieValue,1);
-            }
         }
     }
 }
